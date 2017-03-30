@@ -15,12 +15,15 @@ def parse_line(line):
     base = fields[0].split("-")[0]
     end = fields[0].split("-")[1]
     perm = fields[1]
+    offset = fields[2]
+    major = fields[3].split(":")[0]
+    minor = fields[3].split(":")[1]
     inode = fields[4]
     if len(fields) > 5:
         name = fields[5]
     else:
         name = "unknown"
-    new = memarea(base, end, perm, inode, name)
+    new = memarea(base, end, perm, inode, name, offset=offset, major=major, minor=minor)
     return new
 
 def md5_maps(pid):
@@ -56,7 +59,7 @@ def memtrack(pid):
 
 
 def check_arg(args=None):
-    parser = argparse.ArgumentParser(description='Script to learn basic argparse')
+    parser = argparse.ArgumentParser(description='memtrack: process memory tracker')
     parser.add_argument('-p', '--pid', help='process id (pid)', required='True')
     
     results = parser.parse_args(args)
