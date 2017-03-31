@@ -17,6 +17,9 @@ class memarea:
     def get_base(self):
         return self.base;
 
+    def get_end(self):
+        return self.end;
+
     def get_perm(self):
         return self.perm;
 
