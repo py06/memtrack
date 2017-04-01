@@ -50,8 +50,12 @@ class memarea:
     def get_device(self):
         return self.major+":"+self.minor;
 
-    def display(self):
-        print "Memory range: base = @"+self.get_base()+" (sz="+str(self.get_size())+")"
-	print "	 permission = "+self.get_perm_readable()+" inode = "+\
-                self.get_inode()+" name = "+self.name
+    def display(self, short=True):
+        if short == True:
+            print "@{} (sz={}) perm={} name={}".format(self.base,\
+                    self.get_size(), self.perm, self.name)
+        else:
+            print "Memory range: base = @"+self.get_base()+" (sz="+str(self.get_size())+")"
+	    print "	 permission = "+self.get_perm_readable()+" inode = "+\
+                    self.get_inode()+" name = "+self.name
 
