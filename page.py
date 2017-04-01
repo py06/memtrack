@@ -3,11 +3,11 @@
 class page:
 	def __init__(self, entry):
 		self.pfn = entry & ((1<<55) - 1)
-		self.dirty = entry & (1 << 55)
-		self.exclusive = entry & (1 << 56);
-		self.filepage = entry & (1 << 61);
-		self.swapped = entry & (1 << 62);
-		self.present = entry & (1 << 64);
+		self.dirty = (entry & (1 << 55)) >> 55
+		self.exclusive = (entry & (1 << 56)) >> 56
+		self.filepage = (entry & (1 << 61)) >> 61
+		self.swapped = (entry & (1 << 62)) >> 62
+		self.present = (entry & (1 << 63)) >> 63
 
 	def get_pfn(self):
 		return self.pfn
@@ -28,10 +28,10 @@ class page:
 		return self.present
 
 	def display(self):
-		print "pfn="+self.pfn+" dirt="+self.dirty+" excl="+\
-				self.exclusive+\
-				" file-page="+self.filepage+" swap="\
-				+self.swapped+" pres="+self.present
+		print "pfn={} dirt={} excl={} file-page={} swap={} pres={}"\
+                               .format(self.pfn, self.dirty, self.exclusive,
+                                        self.filepage, self.swapped,
+                                        self.present)
 
 	def find_memarea(self, memmap):
 		for i in range(len(memmap)):
