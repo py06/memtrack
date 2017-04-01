@@ -6,10 +6,6 @@ from page import page
 
 class process:
 
-    memareas = []
-    pagemap = []
-    maps_md5 = ""
-
     def _parse_line(self, line):
         line = ' '.join(line.split())
         fields = line.strip(" +").split(" ")
@@ -23,7 +19,7 @@ class process:
         if len(fields) > 5:
             name = fields[5]
         else:
-            name = "unknown"
+            name = ""
         new = memarea(base, end, perm, inode, name, offset=offset,\
                 major=major, minor=minor)
         return new
@@ -33,7 +29,18 @@ class process:
         with open("/proc/"+pid+"/maps", 'r') as file:
             for line in file:
                 line = line.rstrip()
-                memmap.append(self._parse_line(line))
+                area = self._parse_line(line)
+                memmap.append(area)
+                if area == "[heap]":
+                    if self.heap == None:
+                        self.heap = area
+                    else:
+                        print "Error: More than one heap?"
+                if area == "[stack]":
+                    if self.stack == None:
+                        self.stack = area
+                    else:
+                        print "Error: More than one stack?"
         return memmap
 
     def parse_pagemap(self, pid, start, count):
@@ -63,8 +70,33 @@ class process:
     def set_md5(self, md5):
         self.maps_md5 = md5
 
+    def get_stack(self):
+        return self.stack
+
+    def get_heap(self):
+        return self.heap
+
+    def get_pid(self):
+        return self.pid
+
+    def get_name(self):
+        return self.name
+
+    def extract_name(self, pid):
+        with open("/proc/"+pid+"/comm", 'r') as file:
+            return file.read().rstrip()
+
+    def display(self):
+        print "pid: {} - name: {} - areas: {}".format(self.pid,
+                self.name, len(self.areas))
+
     def __init__(self, pid):
+        self.pid = pid
+        self.name = self.extract_name(pid)
         self.areas = self.parse_maps(pid);
+        self.heap = None
+        self.stack = None
+        self.maps_md5 = 0
 	start = 0
 	count = 10
         self.pagemap = self.parse_pagemap(pid, start, count);
