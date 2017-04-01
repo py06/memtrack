@@ -36,6 +36,9 @@ def map_query(proc, query):
                 result.add(areas[i])
         for i in result:
             i.display()
+    elif query[0] == 'p':
+        #List pages of vma
+        areas[int(query[2:])].dump_pages(proc.get_pid(), 0, 10)
 
 def help_info():
     print "P - process info"
@@ -45,6 +48,7 @@ def help_info():
     print "M - Memory areas info"
     print " Ml - list mapped files by process"
     print " Mf <mapped filename> - list areas associated to mapped file"
+    print " Mp <area id> - display pages from selected area"
     print "    "
     print "Q - Quit"
 
