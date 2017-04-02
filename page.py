@@ -1,13 +1,19 @@
 #-*- coding: utf-8 -*-
 
 class page:
-	def __init__(self, entry):
+	def __init__(self, entry, virt=0):
+		self.virt = virt
 		self.pfn = entry & ((1<<55) - 1)
+                self.swtyp = entry & (0x1f) #swap type (if swapped =1)
+                self.swoff = (entry & ((1 << 55) -1) >> 4)
 		self.dirty = (entry & (1 << 55)) >> 55
 		self.exclusive = (entry & (1 << 56)) >> 56
 		self.filepage = (entry & (1 << 61)) >> 61
 		self.swapped = (entry & (1 << 62)) >> 62
 		self.present = (entry & (1 << 63)) >> 63
+
+	def get_virt(self):
+		return self.virt
 
 	def get_pfn(self):
 		return self.pfn
@@ -28,8 +34,10 @@ class page:
 		return self.present
 
 	def display(self):
-		print "pfn={} dirt={} excl={} file-page={} swap={} pres={}"\
-                               .format(self.pfn, self.dirty, self.exclusive,
+		print "virt={} pfn={} dirt={} excl={} file-page={} swap={} pres={}"\
+                               .format(hex(self.virt >> 12), hex(int(self.pfn)),
+                                       self.dirty,\
+                               self.exclusive,
                                         self.filepage, self.swapped,
                                         self.present)
 
