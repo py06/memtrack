@@ -2,7 +2,7 @@
 import argparse
 import sys
 import hashlib
-import time
+import os
 from process import process
 from memarea import memarea
 
@@ -38,7 +38,19 @@ def map_query(proc, query):
             i.display()
     elif query[0] == 'p':
         #List pages of vma
-        areas[int(query[2:])].dump_pages(proc.get_pid(), 0, 10)
+        offset = 0
+        count = 1
+        if query[2:]:
+            param = query[2:].split(" ")
+            if param[0]:
+                area=int(param[0])
+                pagesize = os.sysconf("SC_PAGE_SIZE")
+                count = areas[area].get_size() / pagesize
+                if len(param) > 1:
+                    offset = int(param[1])
+                    if len(param) > 2:
+                        count = int(param[2])
+            areas[area].dump_pages(proc.get_pid(), offset, count)
 
 def help_info():
     print "P - process info"
@@ -48,7 +60,10 @@ def help_info():
     print "M - Memory areas info"
     print " Ml - list mapped files by process"
     print " Mf <mapped filename> - list areas associated to mapped file"
-    print " Mp <area id> - display pages from selected area"
+    print " Mp <area id> [offset] [count]- display pages from selected area"
+    print "     area id : id of area (from the list of areas)"
+    print "     offset : offset in area (multiple of PAGE_SIZE)"
+    print "     count : number of pages (can overlap next area)"
     print "    "
     print "Q - Quit"
 
