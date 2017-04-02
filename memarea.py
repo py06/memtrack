@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 import struct
+import os
 from page import page
 
 class memarea:
@@ -61,26 +62,36 @@ class memarea:
 
     def find_area_pages(self, pid, start, count):
         pagemap = []
-	offset  = (start / 4096) * 8
-        with open("/proc/"+pid+"/pagemap", 'r') as file:
+        pagesize = os.sysconf("SC_PAGE_SIZE")
+	offset  = (start / pagesize) * 8
+        with open("/proc/"+pid+"/pagemap", 'rb') as file:
 		file.seek(offset, 0)
-		for i in range(1, count):
+		for i in range(0, count):
 			entry = struct.unpack('Q', file.read(8))[0]
 			if not entry:
-				break
-	                pagemap.append(page(entry))
+			    break
+                        p = page(entry, start+(i*pagesize))
+                        if start + (i*pagesize) >= int(self.end, 16):
+                            print "Requesting page outside of memory area"
+	                pagemap.append(p)
         return pagemap
 
-    def dump_pages(self, pid, start=0, count=1):
-       pages = self.find_area_pages(pid, int(self.base, 16), count)
-       for i in range(len(pages)):
-           pages[i].display()
+    def dump_pages(self, pid, offset=0, count=1):
+        pagesize = os.sysconf("SC_PAGE_SIZE")
+        pages = self.find_area_pages(pid, int(self.base, 16)+(offset*pagesize)\
+                , count)
+        self.display()
+        for i in range(len(pages)):
+            pages[i].display()
 
     def display(self, short=True):
         if short == True:
-            print "{} - @{} (sz={}) perm={} name={}".format(self.area_id,
-                    self.base,\
-                    self.get_size(), self.perm, self.name)
+            if self.name != "":
+                print "{} - @{} (sz={}) perm={} name={}".format(self.area_id,
+                    self.base, self.get_size(), self.perm, self.name)
+            else:
+                print "{} - @{} (sz={}) perm={}".format(self.area_id,
+                    self.base, self.get_size(), self.perm)
         else:
             print self.area_id+" Memory range: base = @"+self.get_base()+" (sz="+\
                     str(self.get_size())+")"
