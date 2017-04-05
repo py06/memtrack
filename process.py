@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 import sys
+import os
 import struct
 from memarea import memarea
 from page import page
@@ -45,6 +46,12 @@ class process:
                 aid = aid + 1
         return memmap
 
+    def find_memarea(self, address, length):
+        for i in range(len(self.memareas)):
+		if self.memareas[i].is_contained(address) == True:
+			return self.memareas[i]
+	return None
+
     def get_md5(self):
         return self.maps_md5
 
@@ -78,12 +85,12 @@ class process:
 
     def display(self):
         print "pid: {} - name: {} - areas: {}".format(self.pid,
-                self.name, len(self.areas))
+                self.name, len(self.memareas))
 
     def __init__(self, pid):
         self.pid = pid
         self.name = self.extract_name(pid)
-        self.areas = self.parse_maps(pid);
+        self.memareas = self.parse_maps(pid);
         self.heap = None
         self.stack = None
         self.maps_md5 = 0
