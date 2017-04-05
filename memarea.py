@@ -15,6 +15,11 @@ class memarea:
         self.dev_maj = major
         self.dev_min = minor
 
+    def is_contained(self, address):
+	    if self.base <= address and self.end > address:
+		    return True
+	    return False
+
     def get_size(self):
         return self.end - self.base
 
