@@ -3,10 +3,10 @@ track memory of process
 
 ## Synopsis
 
-Memtrack gather memory information about a process (extracted procfs) and allow
+Memtrack tool gathers memory information about a process (extracted from procfs) and allow
 to display them in different ways
 
-Once started, you can type commande at the '$' prompt
+Once started, you can type commands at the '$' prompt
 
 ## Motivation
 
@@ -16,6 +16,8 @@ avaiable in a scatter fashion in /proc
 ## Installation
 
 Requires python
+
+Run as root (sudo) to parse pagemap
 
 ## Help
 ```
@@ -30,8 +32,14 @@ L - List memory areas
 M - Memory areas info
  Ml - list mapped files by process
  Mf <mapped filename> - list areas associated to mapped file
- Mp <area id> - display pages from selected area
+ Mp <area id> [offset] [count]- display pages from selected area
+     area id : id of area (from the list of areas)
+     offset : offset in area (multiple of PAGE_SIZE)
+     count : number of pages (can overlap next area)
 
+A - address queries
+ Ai <address> - display info about pages and memarea related
+     to the provided address
 Q - Quit
 $
 ```
