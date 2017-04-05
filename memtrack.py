@@ -18,6 +18,29 @@ def list_areas(proc, query):
 def process_query(proc, query):
     proc.display()
 
+def address_query(proc, query):
+    param = query[2:].split(" ")
+    print param
+    if param[0]:
+        addr = param[0] 
+        length = 1
+        if len(param) > 1:  
+            length = param[1] 
+        area = proc.find_memarea(addr, length)
+        if area != None:
+            area.display()
+            pages = area.find_pages(proc.get_pid(), addr, length)
+            if len(pages) >= 1:
+                for i in range(len(pages)):
+                    pages[i].display()
+            else:
+                print "no pages found for addr={}".format(addr)
+        else:
+            print "no area found for addr={}".format(addr)
+    else:
+        print "Please specify an address"
+
+
 def map_query(proc, query):
     result = set()
     areas = proc.get_memareas()
@@ -65,6 +88,9 @@ def help_info():
     print "     offset : offset in area (multiple of PAGE_SIZE)"
     print "     count : number of pages (can overlap next area)"
     print "    "
+    print "A - address queries"
+    print " Ai <address> - display info about pages and memarea related"
+    print "     to the provided address"
     print "Q - Quit"
 
 
@@ -80,6 +106,8 @@ def console(proc):
         return list_areas(proc, query[1:])
     elif query[0] == 'M':
         return map_query(proc, query[1:])
+    elif query[0] == 'A':
+        return address_query(proc, query[1:])
     elif query[0] == 'Q':
         sys.exit(0)
     else:
