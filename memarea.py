@@ -16,7 +16,8 @@ class memarea:
         self.dev_min = minor
 
     def is_contained(self, address):
-	    if self.base <= address and self.end > address:
+	    if int(self.base, 16) <= int(address, 16) and\
+			    int(self.end, 16) > int(address, 16):
 		    return True
 	    return False
 
@@ -64,6 +65,20 @@ class memarea:
 
     def get_device(self):
         return self.major+":"+self.minor
+
+    def find_pages(self, pid, addr, size):
+        pagesize = os.sysconf("SC_PAGE_SIZE")
+	pages = self.find_area_pages(pid, int(addr, 16), max(1, int(size) / pagesize))
+	found = []
+	for i in range(len(pages)):
+	    if pages[i].is_contained(addr):
+		found.append(pages[i])
+		count = int(size) / pagesize
+		for j in range(i, i+count):
+	            if pages[j].is_contained(addr):
+		        found.append(pages[j])
+		break;
+	return found
 
     def find_area_pages(self, pid, start, count):
         pagemap = []
