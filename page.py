@@ -1,9 +1,11 @@
 #-*- coding: utf-8 -*-
+import os
 
 class page:
 	def __init__(self, entry, virt=0):
 		self.virt = virt
 		self.pfn = entry & ((1<<55) - 1)
+		self.pagesize = os.sysconf("SC_PAGE_SIZE")
                 self.swtyp = entry & (0x1f) #swap type (if swapped =1)
                 self.swoff = (entry & ((1 << 55) -1) >> 4)
 		self.dirty = (entry & (1 << 55)) >> 55
@@ -11,6 +13,12 @@ class page:
 		self.filepage = (entry & (1 << 61)) >> 61
 		self.swapped = (entry & (1 << 62)) >> 62
 		self.present = (entry & (1 << 63)) >> 63
+
+	def is_contained(self, address):
+		if self.virt <= int(address, 16) and\
+			self.virt + self.pagesize > int(address, 16):
+			return True
+		return False
 
 	def get_virt(self):
 		return self.virt
